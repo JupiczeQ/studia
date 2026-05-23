@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="STUDIA">
+<meta name="theme-color" content="#0a0a0a">
+<title>STUDIA — Twój semestr w garści</title>
+
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNUVURJQSIsCiAgInNob3J0X25hbWUiOiAiU1RVRElBIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwYTBhMGEiLAogICJ0aGVtZV9jb2xvciI6ICIjMGEwYTBhIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiCn0=">
+
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%230a0a0a'/><text x='90' y='115' font-family='Georgia,serif' font-size='90' font-weight='900' fill='%23f4f0e8' text-anchor='middle' font-style='italic'>S</text><circle cx='140' cy='45' r='8' fill='%23ff3d2e'/></svg>">
+
+<style>
+/* ========== RESET ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { overscroll-behavior: none; }
+input, textarea, select, button { font-family: inherit; font-size: inherit; color: inherit; background: none; border: none; outline: none; }
+button { cursor: pointer; }
+
+/* ========== TYPO + COLORS ========== */
+:root {
+  --bg: #0a0a0a;
+  --paper: #f4f0e8;
+  --paper-2: #e8e2d3;
+  --ink: #0a0a0a;
+  --red: #ff3d2e;
+  --red-dim: #c8281b;
+  --yellow: #ffd84d;
+  --green: #4ade80;
+  --blue: #5b8def;
+  --muted: #8a8478;
+  --line: #1a1a1a;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bot: env(safe-area-inset-bottom);
+}
+
+body {
+  background: var(--bg);
+  color: var(--paper);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(var(--safe-bot) + 88px);
+  -webkit-font-smoothing: antialiased;
+}
+
+.display { font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-weight: 900; letter-spacing: -0.04em; }
+.mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+.uppercase { text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ========== NOISE BG ========== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* ========== HEADER ========== */
+header {
+  position: relative;
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid #1a1a1a;
+  z-index: 2;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.brand h1 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 38px;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: var(--paper);
+}
+.brand h1 span { color: var(--red); }
+.brand .date {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* ========== STATS STRIP ========== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: #1a1a1a;
+  margin-top: 16px;
+  border: 1px solid #1a1a1a;
+}
+.stat {
+  background: var(--bg);
+  padding: 12px 10px;
+  text-align: center;
+}
+.stat .num {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.stat .label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.stat.urgent .num { color: var(--red); }
+.stat.warn .num { color: var(--yellow); }
+
+/* ========== TABS ========== */
+nav.tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border-top: 1px solid #1a1a1a;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-bottom: var(--safe-bot);
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.tab {
+  padding: 14px 4px 12px;
+  text-align: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  position: relative;
+  transition: color 0.2s;
+}
+.tab.active { color: var(--paper); }
+.tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--red);
+}
+.tab .icon {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ========== VIEWS ========== */
+main { position: relative; z-index: 2; }
+.view { display: none; padding: 20px; padding-bottom: 40px; }
+.view.active { display: block; animation: fadein 0.3s ease; }
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== SECTION HEADERS ========== */
+.section-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1a1a1a;
+}
+.section-h:first-child { margin-top: 0; }
+.section-h h2 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.section-h .count {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* ========== CARDS - TASKS / EXAMS ========== */
+.card {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  position: relative;
+  border-left: 4px solid var(--ink);
+  transition: transform 0.2s;
+}
+.card.done {
+  opacity: 0.45;
+  background: var(--paper-2);
+}
+.card.done .title { text-decoration: line-through; }
+.card.urgent { border-left-color: var(--red); }
+.card.soon { border-left-color: var(--yellow); }
+.card.exam { background: var(--ink); color: var(--paper); border-left-color: var(--red); }
+
+.card-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.card .check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  background: transparent;
+}
+.card.done .check { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.card.exam .check { display: none; }
+
+.card .meta-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.card .subject {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  opacity: 0.6;
+}
+.card .deadline {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.card.urgent .deadline { color: var(--red-dim); }
+.card.exam .deadline { color: var(--red); }
+.card .title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.card .note {
+  font-size: 13px;
+  margin-top: 6px;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+.card-body { flex: 1; min-width: 0; }
+.card .del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 300;
+  opacity: 0.3;
+}
+.card .del:active { opacity: 1; color: var(--red); }
+
+.empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--muted);
+  font-style: italic;
+  font-family: Georgia, serif;
+  font-size: 15px;
+}
+.empty::before {
+  content: '∅';
+  display: block;
+  font-size: 40px;
+  margin-bottom: 12px;
+  font-style: normal;
+  opacity: 0.4;
+}
+
+/* ========== ADD BUTTON (FAB) ========== */
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(var(--safe-bot) + 88px);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--paper);
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 56px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(255, 61, 46, 0.4);
+  z-index: 50;
+  transition: transform 0.2s;
+}
+.fab:active { transform: scale(0.92); }
+
+/* ========== MODAL ========== */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.modal-bg.show { display: flex; animation: fadein 0.2s; }
+.modal {
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px 20px calc(var(--safe-bot) + 24px);
+  animation: slideup 0.3s ease;
+}
+@keyframes slideup {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal h3 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.modal h3 span { color: var(--red); }
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 2px solid transparent;
+  border-radius: 0;
+  font-size: 16px;
+  font-weight: 500;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink); }
+.field textarea { resize: vertical; min-height: 72px; font-family: inherit; }
+.field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%230a0a0a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.btns { display: flex; gap: 8px; margin-top: 20px; }
+.btn {
+  flex: 1;
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn:active { transform: scale(0.97); }
+.btn.danger { background: var(--red); color: var(--paper); border-color: var(--red); }
+
+/* ========== SUBJECTS ========== */
+.subj-card {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.subj-card.over { background: var(--red); color: var(--paper); }
+.subj-card.warn { background: var(--yellow); color: var(--ink); }
+.subj-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.subj-name {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.subj-tag {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+  font-weight: 700;
+}
+
+.absence-bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.absence-count {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.absence-count small {
+  font-size: 18px;
+  opacity: 0.5;
+  font-weight: 400;
+}
+.absence-controls {
+  display: flex;
+  gap: 6px;
+}
+.abs-btn {
+  width: 36px;
+  height: 36px;
+  border: 2px solid currentColor;
+  font-size: 20px;
+  font-weight: 700;
+  background: transparent;
+  color: currentColor;
+  line-height: 1;
+}
+.abs-btn:active { background: currentColor; color: var(--paper); }
+.subj-card.warn .abs-btn:active { color: var(--yellow); }
+.subj-card.over .abs-btn:active { color: var(--red); }
+
+.progress {
+  height: 4px;
+  background: rgba(0,0,0,0.15);
+  position: relative;
+  margin-top: 8px;
+}
+.subj-card.over .progress { background: rgba(255,255,255,0.2); }
+.progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: currentColor;
+  transition: width 0.3s;
+}
+
+.grades-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(0,0,0,0.15);
+}
+.subj-card.over .grades-section { border-color: rgba(255,255,255,0.2); }
+.grades-section .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  opacity: 0.6;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.grades {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.grade {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4px 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+.subj-card.over .grade { background: var(--paper); color: var(--ink); }
+.subj-card.warn .grade { background: var(--ink); color: var(--paper); }
+.grade .x { opacity: 0.5; cursor: pointer; padding: 0 2px; }
+.grade-add {
+  background: transparent;
+  border: 1.5px dashed currentColor;
+  padding: 4px 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+.avg {
+  margin-left: auto;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.subj-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+}
+.subj-actions button {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  opacity: 0.4;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ========== HOME view ========== */
+.hero-quote {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 4px;
+}
+.hero-quote .accent { color: var(--red); }
+.hero-sub {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* warning banner for absence */
+.abs-warning {
+  background: var(--red);
+  color: var(--paper);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.abs-warning .mark {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* prompt confirm */
+.confirm-text {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* legend on home */
+.legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.legend span { display: flex; align-items: center; gap: 4px; }
+.legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+}
+.legend .l-red i { background: var(--red); }
+.legend .l-yellow i { background: var(--yellow); }
+
+/* settings */
+.export-block {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.export-block h4 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.export-block p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  opacity: 0.75;
+}
+.export-block .btn { width: 100%; }
+
+.about {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  line-height: 1.8;
+}
+.about .big {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  text-transform: none;
+  color: var(--paper);
+  display: block;
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="brand">
+    <h1>STU<span>.</span>DIA</h1>
+    <div class="date" id="dateNow">—</div>
+  </div>
+  <div class="stats">
+    <div class="stat" id="statTasks">
+      <div class="num">0</div>
+      <div class="label">Zadania</div>
+    </div>
+    <div class="stat urgent" id="statUrgent">
+      <div class="num">0</div>
+      <div class="label">Na 3 dni</div>
+    </div>
+    <div class="stat warn" id="statExams">
+      <div class="num">0</div>
+      <div class="label">Egzaminy</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HOME ============ -->
+  <section class="view active" id="view-home">
+    <div class="hero-quote" id="heroQuote">
+      Załóż <span class="accent">co masz</span> i jedź.
+    </div>
+    <div class="hero-sub" id="heroSub">Twój semestr w garści</div>
+
+    <div id="absWarnings"></div>
+
+    <div class="section-h">
+      <h2>Pilne</h2>
+      <div class="count" id="urgentCount">0 / 0</div>
+    </div>
+    <div class="legend">
+      <span class="l-red"><i></i>≤ 1 dzień</span>
+      <span class="l-yellow"><i></i>≤ 3 dni</span>
+      <span>≤ 7 dni</span>
+    </div>
+    <div id="homeUpcoming" style="margin-top:14px"></div>
+  </section>
+
+  <!-- ============ TASKS ============ -->
+  <section class="view" id="view-tasks">
+    <div class="section-h">
+      <h2>Zadania</h2>
+      <div class="count" id="tasksCount">0</div>
+    </div>
+    <div id="taskList"></div>
+
+    <div class="section-h" style="margin-top:28px">
+      <h2>Egzaminy</h2>
+      <div class="count" id="examsCount">0</div>
+    </div>
+    <div id="examList"></div>
+  </section>
+
+  <!-- ============ SUBJECTS ============ -->
+  <section class="view" id="view-subjects">
+    <div class="section-h">
+      <h2>Przedmioty</h2>
+      <div class="count" id="subjCount">0</div>
+    </div>
+    <div id="subjList"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="view-settings">
+    <div class="section-h">
+      <h2>Ustawienia</h2>
+    </div>
+
+    <div class="export-block">
+      <h4>Backup danych</h4>
+      <p>Pobierz wszystko jako plik JSON. Trzymaj kopię w iCloud na wszelki wypadek.</p>
+      <button class="btn btn-primary" onclick="exportData()">Eksport JSON</button>
+    </div>
+
+    <div class="export-block">
+      <h4>Import / przywróć</h4>
+      <p>Wgraj backup z pliku JSON. Zastąpi obecne dane.</p>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn" onclick="document.getElementById('importFile').click()">Wybierz plik</button>
+    </div>
+
+    <div class="export-block">
+      <h4>Wyczyść wszystko</h4>
+      <p>Usuwa wszystkie zadania, egzaminy, przedmioty i oceny. Nieodwracalne.</p>
+      <button class="btn danger" onclick="confirmWipe()">Wyczyść</button>
+    </div>
+
+    <div class="about">
+      <span class="big">STU<span style="color:var(--red)">.</span>DIA</span>
+      Aplikacja offline · Dane lokalne<br>
+      Made for chaotic semesters
+    </div>
+  </section>
+</main>
+
+<!-- ============ FAB ============ -->
+<button class="fab" id="fab" onclick="openAdd()">+</button>
+
+<!-- ============ TABS ============ -->
+<nav class="tabs">
+  <div class="tab active" data-view="home"><span class="icon">⌂</span>Dziś</div>
+  <div class="tab" data-view="tasks"><span class="icon">§</span>Lista</div>
+  <div class="tab" data-view="subjects"><span class="icon">★</span>Przedmioty</div>
+  <div class="tab" data-view="settings"><span class="icon">⚙</span>Ustaw.</div>
+</nav>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-bg" id="modal">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+/* =========================================
+   STORE
+========================================= */
+const STORE_KEY = 'studia.v1';
+let store = {
+  tasks: [],       // {id, subject, title, note, due, type:'task'|'exam', done}
+  subjects: [],    // {id, name, abs, maxAbs, grades:[]}
+  settings: { warns: [7,3,1] }
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      store = { ...store, ...parsed };
+      if (!store.settings) store.settings = { warns:[7,3,1] };
+    }
+  } catch(e) { console.error(e); }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e){}
+}
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* =========================================
+   DATES
+========================================= */
+function daysUntil(iso) {
+  if (!iso) return Infinity;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const t = new Date(iso);
+  t.setHours(0,0,0,0);
+  return Math.round((t - today) / 86400000);
+}
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const months = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+function fmtDateLong(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pl-PL', { weekday:'long', day:'numeric', month:'long' });
+}
+function deadlineLabel(iso) {
+  const d = daysUntil(iso);
+  if (d < 0) return `${Math.abs(d)} dni temu`;
+  if (d === 0) return 'DZIŚ';
+  if (d === 1) return 'JUTRO';
+  if (d <= 7) return `za ${d} dni`;
+  return fmtDate(iso);
+}
+function urgencyClass(iso, done) {
+  if (done) return '';
+  const d = daysUntil(iso);
+  if (d < 0) return 'urgent';
+  if (d <= 1) return 'urgent';
+  if (d <= 3) return 'soon';
+  return '';
+}
+
+/* =========================================
+   VIEW SWITCHING
+========================================= */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.view).classList.add('active');
+    document.getElementById('fab').style.display = (tab.dataset.view === 'settings') ? 'none' : 'block';
+    window.scrollTo({top:0, behavior:'instant'});
+  });
+});
+
+/* =========================================
+   RENDER — Header / Stats / Date
+========================================= */
+function renderHeader() {
+  const now = new Date();
+  const dayNames = ['NIEDZIELA','PONIEDZIAŁEK','WTOREK','ŚRODA','CZWARTEK','PIĄTEK','SOBOTA'];
+  document.getElementById('dateNow').innerHTML =
+    `${dayNames[now.getDay()]}<br>${now.getDate()}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+
+  const tasksOpen = store.tasks.filter(t => !t.done && t.type === 'task');
+  const exams = store.tasks.filter(t => t.type === 'exam' && !t.done);
+  const urgent = store.tasks.filter(t => !t.done && daysUntil(t.due) <= 3 && daysUntil(t.due) >= -1);
+
+  document.querySelector('#statTasks .num').textContent = tasksOpen.length;
+  document.querySelector('#statUrgent .num').textContent = urgent.length;
+  document.querySelector('#statExams .num').textContent = exams.length;
+}
+
+/* =========================================
+   RENDER — Home
+========================================= */
+const QUOTES = [
+  ['Załóż <span class="accent">co masz</span> i jedź.', 'Twój semestr w garści'],
+  ['Nie ma <span class="accent">jutra</span> — jest tylko deadline.', 'Działaj'],
+  ['Sesja to <span class="accent">stan umysłu</span>.', 'Bądź gotowy'],
+  ['Pamiętaj <span class="accent">o sobie</span>.', 'Ale i o egzaminach'],
+  ['Każdy dzień <span class="accent">się liczy</span>.', 'Szczególnie ten'],
+];
+function pickQuote() {
+  const i = new Date().getDate() % QUOTES.length;
+  document.getElementById('heroQuote').innerHTML = QUOTES[i][0];
+  document.getElementById('heroSub').textContent = QUOTES[i][1];
+}
+
+function renderHome() {
+  const upcoming = store.tasks
+    .filter(t => !t.done && daysUntil(t.due) <= 7 && daysUntil(t.due) >= -1)
+    .sort((a,b) => new Date(a.due) - new Date(b.due));
+
+  document.getElementById('urgentCount').textContent = `${upcoming.length} / ${store.tasks.filter(t=>!t.done).length}`;
+
+  const wrap = document.getElementById('homeUpcoming');
+  if (upcoming.length === 0) {
+    wrap.innerHTML = `<div class="empty">Czysto. Nic pilnego w tym tygodniu.</div>`;
+  } else {
+    wrap.innerHTML = upcoming.map(renderCard).join('');
+    attachCardEvents(wrap);
+  }
+
+  // Absence warnings
+  const warns = document.getElementById('absWarnings');
+  const danger = store.subjects.filter(s => s.maxAbs > 0 && s.abs >= s.maxAbs - 1);
+  if (danger.length > 0) {
+    warns.innerHTML = danger.map(s => {
+      const remaining = s.maxAbs - s.abs;
+      let text;
+      if (remaining <= 0) text = `${escapeHtml(s.name)} — przekroczyłeś limit nieobecności`;
+      else if (remaining === 1) text = `${escapeHtml(s.name)} — została Ci 1 nieobecność`;
+      else text = `${escapeHtml(s.name)} — zostały ${remaining} nieobecności`;
+      return `<div class="abs-warning"><span class="mark">!</span><div>${text}</div></div>`;
+    }).join('');
+  } else {
+    warns.innerHTML = '';
+  }
+}
+
+/* =========================================
+   RENDER — Cards (task / exam)
+========================================= */
+function escapeHtml(s) {
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderCard(t) {
+  const isExam = t.type === 'exam';
+  const cls = ['card', urgencyClass(t.due, t.done), t.done?'done':'', isExam?'exam':''].filter(Boolean).join(' ');
+  return `<div class="${cls}" data-id="${t.id}">
+    <div class="card-row">
+      ${isExam ? '' : `<button class="check" data-act="toggle">${t.done?'✓':''}</button>`}
+      <div class="card-body">
+        <div class="meta-top">
+          <span class="subject">${isExam ? 'EGZAMIN · ' : ''}${escapeHtml(t.subject||'—')}</span>
+          <span class="deadline">${deadlineLabel(t.due)} · ${fmtDate(t.due)}</span>
+        </div>
+        <div class="title">${escapeHtml(t.title)}</div>
+        ${t.note ? `<div class="note">${escapeHtml(t.note)}</div>` : ''}
+      </div>
+    </div>
+    <button class="del" data-act="del">×</button>
+  </div>`;
+}
+
+function attachCardEvents(scope) {
+  scope.querySelectorAll('.card').forEach(card => {
+    const id = card.dataset.id;
+    card.querySelector('[data-act="toggle"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      const t = store.tasks.find(x => x.id === id);
+      if (t) { t.done = !t.done; save(); renderAll(); }
+    });
+    card.querySelector('[data-act="del"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm('Usunąć?')) {
+        store.tasks = store.tasks.filter(x => x.id !== id);
+        save(); renderAll();
+      }
+    });
+    card.addEventListener('click', () => {
+      const t = store.tasks.find(x => x.id === id);
+      if (t) openAdd(t);
+    });
+  });
+}
+
+/* =========================================
+   RENDER — Tasks view
+========================================= */
+function renderTasks() {
+  const tasks = store.tasks
+    .filter(t => t.type !== 'exam')
+    .sort((a,b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return new Date(a.due) - new Date(b.due);
+    });
+  const exams = store.tasks
+    .filter(t => t.type === 'exam')
+    .sort((a,b) => new Date(a.due) - new Date(b.due));
+
+  const tWrap = document.getElementById('taskList');
+  const eWrap = document.getElementById('examList');
+
+  document.getElementById('tasksCount').textContent = tasks.length;
+  document.getElementById('examsCount').textContent = exams.length;
+
+  tWrap.innerHTML = tasks.length ? tasks.map(renderCard).join('') : `<div class="empty">Żadnych zadań. Cisza.</div>`;
+  eWrap.innerHTML = exams.length ? exams.map(renderCard).join('') : `<div class="empty">Brak egzaminów w planie.</div>`;
+  attachCardEvents(tWrap);
+  attachCardEvents(eWrap);
+}
+
+/* =========================================
+   RENDER — Subjects
+========================================= */
+function renderSubjects() {
+  document.getElementById('subjCount').textContent = store.subjects.length;
+  const wrap = document.getElementById('subjList');
+  if (store.subjects.length === 0) {
+    wrap.innerHTML = `<div class="empty">Brak przedmiotów. Dodaj pierwszy plusikiem.</div>`;
+    return;
+  }
+  wrap.innerHTML = store.subjects.map(s => {
+    const maxA = s.maxAbs || 0;
+    const pct = maxA > 0 ? Math.min(100, (s.abs / maxA) * 100) : 0;
+    let stateCls = '';
+    if (maxA > 0 && s.abs >= maxA) stateCls = 'over';
+    else if (maxA > 0 && s.abs >= maxA - 1) stateCls = 'warn';
+
+    const grades = s.grades || [];
+    const numeric = grades.filter(g => !isNaN(parseFloat(g))).map(g => parseFloat(g));
+    const avg = numeric.length > 0 ? (numeric.reduce((a,b)=>a+b,0)/numeric.length).toFixed(2) : null;
+
+    return `<div class="subj-card ${stateCls}" data-id="${s.id}">
+      <div class="subj-actions">
+        <button data-act="edit-subj">✎</button>
+        <button data-act="del-subj">×</button>
+      </div>
+      <div class="subj-head">
+        <div class="subj-name">${escapeHtml(s.name)}</div>
+      </div>
+      <div class="subj-tag">Nieobecności</div>
+      <div class="absence-bar">
+        <div class="absence-count">${s.abs}<small>${maxA > 0 ? ' / '+maxA : ''}</small></div>
+        <div class="absence-controls">
+          <button class="abs-btn" data-act="abs-down">−</button>
+          <button class="abs-btn" data-act="abs-up">+</button>
+        </div>
+      </div>
+      ${maxA > 0 ? `<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>` : ''}
+      <div class="grades-section">
+        <div class="label">Oceny ${avg !== null ? '· śr. '+avg : ''}</div>
+        <div class="grades">
+          ${grades.map((g,i) => `<span class="grade">${escapeHtml(g)}<span class="x" data-grade-i="${i}">×</span></span>`).join('')}
+          <button class="grade-add" data-act="add-grade">+ ocena</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // events
+  wrap.querySelectorAll('.subj-card').forEach(card => {
+    const id = card.dataset.id;
+    const s = store.subjects.find(x => x.id === id);
+    if (!s) return;
+    card.querySelector('[data-act="abs-up"]').addEventListener('click', () => {
+      s.abs = (s.abs||0) + 1; save(); renderAll();
+    });
+    card.querySelector('[data-act="abs-down"]').addEventListener('click', () => {
+      s.abs = Math.max(0, (s.abs||0) - 1); save(); renderAll();
+    });
+    card.querySelector('[data-act="add-grade"]').addEventListener('click', () => {
+      const g = prompt('Ocena (np. 4.5, 3, zal, nzal):');
+      if (g && g.trim()) {
+        s.grades = s.grades || [];
+        s.grades.push(g.trim());
+        save(); renderAll();
+      }
+    });
+    card.querySelector('[data-act="edit-subj"]').addEventListener('click', () => openSubjectModal(s));
+    card.querySelector('[data-act="del-subj"]').addEventListener('click', () => {
+      if (confirm(`Usunąć przedmiot "${s.name}"? Oceny i nieobecności znikną.`)) {
+        store.subjects = store.subjects.filter(x => x.id !== id);
+        save(); renderAll();
+      }
+    });
+    card.querySelectorAll('.grade .x').forEach(x => {
+      x.addEventListener('click', e => {
+        e.stopPropagation();
+        const i = parseInt(x.dataset.gradeI, 10);
+        s.grades.splice(i, 1);
+        save(); renderAll();
+      });
+    });
+  });
+}
+
+/* =========================================
+   MODAL — Add / Edit task/exam
+========================================= */
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+
+function openAdd(existing) {
+  const activeView = document.querySelector('.view.active').id;
+  if (activeView === 'view-subjects') {
+    openSubjectModal();
+    return;
+  }
+
+  const isEdit = !!existing;
+  const t = existing || { id: uid(), type:'task', subject:'', title:'', note:'', due: todayISO(), done:false };
+
+  const subjectsOpts = store.subjects.map(s => `<option ${t.subject===s.name?'selected':''}>${escapeHtml(s.name)}</option>`).join('');
+
+  modalContent.innerHTML = `
+    <h3>${isEdit?'Edytuj':'Dodaj'} <span>${t.type==='exam'?'egzamin':'zadanie'}</span></h3>
+
+    <div class="field">
+      <label>Typ</label>
+      <select id="m-type">
+        <option value="task" ${t.type==='task'?'selected':''}>Zadanie / projekt</option>
+        <option value="exam" ${t.type==='exam'?'selected':''}>Egzamin / kolokwium</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Przedmiot</label>
+      ${store.subjects.length > 0
+        ? `<select id="m-subject"><option value="">—</option>${subjectsOpts}<option value="__new__">+ nowy przedmiot...</option></select>`
+        : `<input type="text" id="m-subject" placeholder="np. Analiza matematyczna" value="${escapeHtml(t.subject)}">`
+      }
+    </div>
+
+    <div class="field">
+      <label>Tytuł</label>
+      <input type="text" id="m-title" placeholder="np. Lista 3, zadania 4-7" value="${escapeHtml(t.title)}">
+    </div>
+
+    <div class="field">
+      <label>Termin</label>
+      <input type="date" id="m-due" value="${t.due ? t.due.split('T')[0] : todayISO()}">
+    </div>
+
+    <div class="field">
+      <label>Notatka (opcjonalnie)</label>
+      <textarea id="m-note" placeholder="Strony, materiały, sala, cokolwiek...">${escapeHtml(t.note)}</textarea>
+    </div>
+
+    <div class="btns">
+      <button class="btn" onclick="closeModal()">Anuluj</button>
+      <button class="btn btn-primary" id="m-save">${isEdit?'Zapisz':'Dodaj'}</button>
+    </div>
+  `;
+  modal.classList.add('show');
+
+  // Handle "new subject" option
+  const subjEl = document.getElementById('m-subject');
+  if (subjEl && subjEl.tagName === 'SELECT') {
+    subjEl.addEventListener('change', () => {
+      if (subjEl.value === '__new__') {
+        const name = prompt('Nazwa nowego przedmiotu:');
+        if (name && name.trim()) {
+          const newSubj = { id: uid(), name: name.trim(), abs:0, maxAbs:0, grades:[] };
+          store.subjects.push(newSubj);
+          save();
+          // Re-render the select
+          const opt = document.createElement('option');
+          opt.textContent = newSubj.name;
+          opt.selected = true;
+          subjEl.insertBefore(opt, subjEl.querySelector('option[value="__new__"]'));
+          subjEl.value = newSubj.name;
+        } else {
+          subjEl.value = '';
+        }
+      }
+    });
+  }
+
+  document.getElementById('m-save').addEventListener('click', () => {
+    const subjVal = subjEl.tagName === 'SELECT' ? (subjEl.value === '__new__' ? '' : subjEl.value) : subjEl.value;
+    const title = document.getElementById('m-title').value.trim();
+    if (!title) { alert('Tytuł jest wymagany.'); return; }
+
+    t.type = document.getElementById('m-type').value;
+    t.subject = subjVal.trim();
+    t.title = title;
+    t.due = document.getElementById('m-due').value;
+    t.note = document.getElementById('m-note').value.trim();
+
+    if (!isEdit) {
+      store.tasks.push(t);
+    } else {
+      const idx = store.tasks.findIndex(x => x.id === t.id);
+      if (idx >= 0) store.tasks[idx] = t;
+    }
+    save();
+    closeModal();
+    renderAll();
+  });
+}
+
+/* =========================================
+   MODAL — Subject
+========================================= */
+function openSubjectModal(existing) {
+  const isEdit = !!existing;
+  const s = existing || { id: uid(), name:'', abs:0, maxAbs:0, grades:[] };
+
+  modalContent.innerHTML = `
+    <h3>${isEdit?'Edytuj':'Dodaj'} <span>przedmiot</span></h3>
+
+    <div class="field">
+      <label>Nazwa</label>
+      <input type="text" id="s-name" placeholder="np. Matematyka dyskretna" value="${escapeHtml(s.name)}">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Nieobecności</label>
+        <input type="number" id="s-abs" min="0" value="${s.abs||0}">
+      </div>
+      <div class="field">
+        <label>Limit (0 = brak)</label>
+        <input type="number" id="s-max" min="0" value="${s.maxAbs||0}">
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn" onclick="closeModal()">Anuluj</button>
+      <button class="btn btn-primary" id="s-save">${isEdit?'Zapisz':'Dodaj'}</button>
+    </div>
+  `;
+  modal.classList.add('show');
+
+  document.getElementById('s-save').addEventListener('click', () => {
+    const name = document.getElementById('s-name').value.trim();
+    if (!name) { alert('Podaj nazwę.'); return; }
+    s.name = name;
+    s.abs = parseInt(document.getElementById('s-abs').value,10) || 0;
+    s.maxAbs = parseInt(document.getElementById('s-max').value,10) || 0;
+    if (!isEdit) store.subjects.push(s);
+    save();
+    closeModal();
+    renderAll();
+  });
+}
+
+function closeModal() { modal.classList.remove('show'); }
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* =========================================
+   EXPORT / IMPORT / WIPE
+========================================= */
+function exportData() {
+  const blob = new Blob([JSON.stringify(store, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `studia-backup-${todayISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (confirm('To zastąpi obecne dane. Kontynuować?')) {
+        store = { ...store, ...data };
+        save();
+        renderAll();
+        alert('Zaimportowano.');
+      }
+    } catch(err) {
+      alert('Nieprawidłowy plik.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function confirmWipe() {
+  if (confirm('Naprawdę wszystko usunąć? Tego nie cofniesz.')) {
+    if (confirm('Na pewno-pewno?')) {
+      store = { tasks:[], subjects:[], settings:{warns:[7,3,1]} };
+      save();
+      renderAll();
+    }
+  }
+}
+
+/* =========================================
+   INIT
+========================================= */
+function renderAll() {
+  renderHeader();
+  renderHome();
+  renderTasks();
+  renderSubjects();
+}
+
+load();
+pickQuote();
+renderAll();
+
+// Refresh on visibility (date may have changed overnight)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) { renderAll(); pickQuote(); }
+});
+
+/* =========================================
+   SERVICE WORKER for full offline
+========================================= */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const swCode = `
+      const CACHE = 'studia-v1';
+      self.addEventListener('install', e => {
+        e.waitUntil(caches.open(CACHE).then(c => c.add('./')));
+        self.skipWaiting();
+      });
+      self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
+      self.addEventListener('fetch', e => {
+        e.respondWith(
+          caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, copy));
+            return res;
+          }).catch(() => caches.match('./')))
+        );
+      });
+    `;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
